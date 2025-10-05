@@ -1,9 +1,5 @@
 use nom::{
-    bytes::complete::tag,
-    combinator::rest,
-    error::{Error, ParseError},
-    sequence::preceded,
-    Compare, IResult, Input, Parser,
+    bytes::complete::tag, combinator::rest, sequence::preceded, Compare, IResult, Input, Parser,
 };
 
 pub(crate) fn bearer_token<I>(input: I) -> IResult<I, I>

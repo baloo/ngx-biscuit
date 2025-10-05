@@ -12,11 +12,11 @@ use ngx::ffi::{
 };
 use ngx::http::{HTTPStatus, HttpModule, Merge, MergeConfigError, Request};
 use ngx::http::{HttpModuleLocationConf, HttpModuleMainConf, NgxHttpCoreModule};
-use ngx::{http_request_handler, ngx_conf_log_error, ngx_log_debug_http, ngx_string};
+use ngx::{http_request_handler, ngx_conf_log_error, ngx_string};
 
 use nom::Finish;
 
-use biscuit_auth::{Authorizer, AuthorizerBuilder, Biscuit, PublicKey};
+use biscuit_auth::{AuthorizerBuilder, Biscuit, PublicKey};
 
 mod parser;
 
@@ -29,17 +29,19 @@ impl HttpModule for Module {
 
     unsafe extern "C" fn postconfiguration(cf: *mut ngx_conf_t) -> ngx_int_t {
         // SAFETY: this function is called with non-NULL cf always
-        let cf = &mut *cf;
+        let cf = unsafe { &mut *cf };
         let cmcf = NgxHttpCoreModule::main_conf_mut(cf).expect("http core main conf");
 
-        let h = ngx_array_push(
-            &mut cmcf.phases[ngx_http_phases_NGX_HTTP_ACCESS_PHASE as usize].handlers,
-        ) as *mut ngx_http_handler_pt;
+        let h = unsafe {
+            ngx_array_push(
+                &mut cmcf.phases[ngx_http_phases_NGX_HTTP_ACCESS_PHASE as usize].handlers,
+            ) as *mut ngx_http_handler_pt
+        };
         if h.is_null() {
             return core::Status::NGX_ERROR.into();
         }
         // set an Access phase handler
-        *h = Some(biscuit_access_handler);
+        unsafe { *h = Some(biscuit_access_handler) };
         core::Status::NGX_OK.into()
     }
 }
@@ -98,7 +100,7 @@ pub static mut ngx_http_auth_biscuit_module: ngx_module_t = ngx_module_t {
 };
 
 impl Merge for ModuleConfig {
-    fn merge(&mut self, prev: &ModuleConfig) -> Result<(), MergeConfigError> {
+    fn merge(&mut self, _prev: &ModuleConfig) -> Result<(), MergeConfigError> {
         Ok(())
     }
 }
@@ -121,15 +123,14 @@ http_request_handler!(biscuit_access_handler, |request: &mut Request| {
 
     let mut token = None;
     for (name, value) in request.headers_in_iterator() {
-        if let Ok(name) = name.to_str() {
-            if name.to_lowercase() == "authorization" {
-                if let Ok(value) = http::HeaderValue::from_bytes(value.as_bytes()) {
-                    let Ok((_, value)) = parser::bearer_token(value.as_bytes()).finish() else {
-                        todo!()
-                    };
-                    token = Some(value.to_vec());
-                }
-            }
+        if let Ok(name) = name.to_str()
+            && name.to_lowercase() == "authorization"
+            && let Ok(value) = http::HeaderValue::from_bytes(value.as_bytes())
+        {
+            let Ok((_, value)) = parser::bearer_token(value.as_bytes()).finish() else {
+                todo!()
+            };
+            token = Some(value.to_vec());
         }
     }
 
@@ -223,7 +224,7 @@ extern "C" fn ngx_http_auth_biscuit_authorizer_file(
 
         let code_rule = match fs::read_to_string(val) {
             Ok(content) => content,
-            Err(e) => {
+            Err(_e) => {
                 ngx_conf_log_error!(
                     NGX_LOG_EMERG,
                     cf,
