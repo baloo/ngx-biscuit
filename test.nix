@@ -13,45 +13,53 @@ let
     user("1234");
   '';
 
-  biscuit = datalog: builtins.readFile (
+  biscuit = { datalog, attrs ? { } }: builtins.readFile (
     runCommand "gen-biscuit" { nativeBuildInputs = [ biscuit-cli ]; } ''
-      biscuit generate --private-key "${rootkey}" ${datalog} > $out
+            biscuit generate \
+              --private-key "${rootkey}" \
+      	${lib.cli.toGNUCommandLineShell {} attrs} \
+      	${datalog} > $out
     ''
   );
-in
-testers.nixosTest ({
-  name = "ngx-biscuit-integration";
 
-  nodes = {
-    webserver = { ... }: {
-      services.nginx = {
-        enable = true;
-        prependConfig = ''
-            load_module "${ngx-biscuit}/lib/libngx_biscuit.so";
-        '';
-        virtualHosts.biscuit = {
-	  locations."/" = {
-            extraConfig = ''
-              auth_biscuit_public_key "${builtins.readFile public}";
-              auth_biscuit_authorizer_file ${authorizer};
+  runTest = { authorizer, datalog, makeBiscuitAttrs ? { } }:
+    testers.nixosTest ({
+      name = "ngx-biscuit-integration";
+
+      nodes = {
+        webserver = { ... }: {
+          services.nginx = {
+            enable = true;
+            prependConfig = ''
+              load_module "${ngx-biscuit}/lib/libngx_biscuit.so";
             '';
-	  };
+            virtualHosts.biscuit = {
+              locations."/" = {
+                extraConfig = ''
+                  auth_biscuit_public_key "${builtins.readFile public}";
+                  auth_biscuit_authorizer_file ${authorizer};
+                '';
+              };
+            };
+          };
         };
       };
-    };
-  };
 
-  testScript = ''
-    webserver.wait_for_unit("nginx")
-    webserver.wait_for_open_port(80)
+      testScript = ''
+        webserver.wait_for_unit("nginx")
+        webserver.wait_for_open_port(80)
 
-    webserver.fail(
-        "curl --verbose --fail --resolve biscuit:80:127.0.0.1 http://biscuit/"
-    )
+        webserver.fail(
+            "curl --verbose --fail --resolve biscuit:80:127.0.0.1 http://biscuit/"
+        )
 
-    webserver.succeed(
-        "curl --verbose --fail --header 'Authorization: Bearer ${biscuit sample}' --resolve biscuit:80:127.0.0.1 http://biscuit/"
-    )
-  '';
+        webserver.succeed(
+            "curl --verbose --fail --header 'Authorization: Bearer ${biscuit { inherit datalog ; attrs = makeBiscuitAttrs;}}' --resolve biscuit:80:127.0.0.1 http://biscuit/"
+        )
+      '';
 
-})
+    });
+in
+{
+  simple = runTest { datalog = sample; inherit authorizer; };
+}

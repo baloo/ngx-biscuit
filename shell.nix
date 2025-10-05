@@ -22,6 +22,8 @@ mkShell {
     rustfmt
     clippy
 
+    biscuit-cli
+
     vi
     nixpkgs-fmt
 

@@ -14,6 +14,8 @@ rustPlatform.buildRustPackage {
     "shell.nix"
     "test.nix"
     "tmp"
+    "example.cnf"
+    ".jj"
   ] ./.;
   cargoLock = {
     lockFile = ./Cargo.lock;
