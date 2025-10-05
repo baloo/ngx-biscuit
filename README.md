@@ -11,3 +11,14 @@ http {
         }
     }
 }
+```
+
+
+## Development
+
+```
+$ nix-shell
+$ cargo build
+$ nginx -c example.cnf -e stderr -p $PWD
+$ curl -v --header 'Authorization: Bearer En0KEwoEMTIzNBgDIgkKBwgKEgMYgAgSJAgAEiAdbUPkSZ4KVak-CIGWs_shxjAync_e13qnaHD6Am3DSRpArECNcshzWMj22A5AQySpNIpJ3zlQNgfCU16pqg2V6N8Yw5CfFqUvo8qrG9qC3-M3PPdadYt-xrG2ETRWZxsnBCIiCiCZB1G2yrztVqbYO4giPTLaoSDGtdwypEUbP5W2DvT4Hg==' http://localhost:8080
+```

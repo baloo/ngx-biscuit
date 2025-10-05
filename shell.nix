@@ -1,4 +1,4 @@
-with import <nixpkgs> {};
+with import ./nix;
 
 let
   vi = neovim.override {
@@ -22,6 +22,8 @@ in mkShell {
 
     openssl pkg-config
     rustPlatform.bindgenHook
+
+    nginx
   ];
 
   shellHook = ''
@@ -37,4 +39,6 @@ in mkShell {
   #NIX_CFLAGS_COMPILE="-I${openssl.dev}/include";
   OPENSSL_INCLUDE_DIR = "${openssl.dev}/include";
   EDITOR="vi";
+
+  NGINX_BUILD_DIR="${nginx.objs}/objs";
 }

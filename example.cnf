@@ -3,8 +3,8 @@ master_process off;
 worker_processes  1;
 
 error_log stderr debug;
-load_module "/home/baloo/dev/ngx-biscuit/target/debug/libngx_biscuit.so";
-pid /tmp/nginx.pid;
+load_module "./target/debug/libngx_biscuit.so";
+pid tmp/nginx.pid;
 
 events { }
 
@@ -15,7 +15,7 @@ http {
 
         location / {
 	    auth_biscuit_public_key "ed25519/7fb375e762b525d926755ddf0dc68e413dce33c46f065d9b9423a827f2c3df0e";
-	    auth_biscuit_authorizer_file /home/baloo/dev/ngx-biscuit/authorizer;
+	    auth_biscuit_authorizer_file authorizer;
         }
     }
 }
