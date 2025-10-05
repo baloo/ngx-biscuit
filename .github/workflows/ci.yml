@@ -1,0 +1,45 @@
+name: "CI"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  merge_group:
+
+env:
+  FORCE_COLOR: 1
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: DeterminateSystems/nix-installer-action@v20
+        with:
+          diagnostic-endpoint: ""
+          source-url: "https://install.lix.systems/lix/lix-installer-x86_64-linux"
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          diagnostic-endpoint: ""
+      - name: Build ngx-biscuit
+        run: nix-build nix -A ngx-biscuit
+
+  test:
+    needs: [ build ]
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: DeterminateSystems/nix-installer-action@v20
+        with:
+          diagnostic-endpoint: ""
+          source-url: "https://install.lix.systems/lix/lix-installer-x86_64-linux"
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          diagnostic-endpoint: ""
+      - name: Run integration tests
+        run: |
+          nix-build test.nix
+
+

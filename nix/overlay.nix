@@ -4,11 +4,13 @@ self: super: {
       "objs"
     ];
 
-    disallowedReferences = [];
+    disallowedReferences = [ ];
 
     postInstall = ''
       mkdir $objs
       cp -a src objs $objs/
     '';
   });
+
+  ngx-biscuit = self.callPackage ../package.nix {};
 }

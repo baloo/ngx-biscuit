@@ -3,6 +3,8 @@
 This is a module for nginx written in Rust to authenticate requests via a Biscuit bearer token.
 
 ```
+load_module "./target/debug/libngx_biscuit.so";
+
 http {
     server {
         location / {

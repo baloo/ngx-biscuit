@@ -2,25 +2,31 @@ with import ./nix;
 
 let
   vi = neovim.override {
-      configure = {
-        customRC = ''
-          set mouse=
-          let g:rustfmt_autosave = 1
-        '';
+    configure = {
+      customRC = ''
+        set mouse=
+        let g:rustfmt_autosave = 1
+      '';
 
-        packages.rust = with vimPlugins; {
-          start = [ rust-vim ];
-          opt = [ ];
-        };
+      packages.rust = with vimPlugins; {
+        start = [ rust-vim ];
+        opt = [ ];
       };
     };
-in mkShell {
+  };
+in
+mkShell {
   nativeBuildInputs = [
-    cargo rustc rustfmt clippy
+    cargo
+    rustc
+    rustfmt
+    clippy
 
     vi
+    nixpkgs-fmt
 
-    openssl pkg-config
+    openssl
+    pkg-config
     rustPlatform.bindgenHook
 
     nginx
@@ -35,10 +41,10 @@ in mkShell {
     openssl
   ];
 
-  NIX_CFLAGS_COMPILE="-I${libxcrypt}/include -I${pcre2.dev}/include";
+  NIX_CFLAGS_COMPILE = "-I${libxcrypt}/include -I${pcre2.dev}/include";
   #NIX_CFLAGS_COMPILE="-I${openssl.dev}/include";
   OPENSSL_INCLUDE_DIR = "${openssl.dev}/include";
-  EDITOR="vi";
+  EDITOR = "vi";
 
-  NGINX_BUILD_DIR="${nginx.objs}/objs";
+  NGINX_BUILD_DIR = "${nginx.objs}/objs";
 }
