@@ -145,9 +145,14 @@ http_request_handler!(biscuit_access_handler, |request: &mut Request| {
     let authorizer = authorizer.clone();
 
     // TODO: provide $time for TTL checks
-    if authorizer.build(&token).is_err() {
+    let Ok(mut authorizer) = authorizer.build(&token) else {
         return HTTPStatus::FORBIDDEN.into();
-    }
+    };
+
+    match authorizer.authorize() {
+        Ok(_) => {}
+        Err(_) => return HTTPStatus::FORBIDDEN.into(),
+    };
 
     core::Status::NGX_OK
 });
