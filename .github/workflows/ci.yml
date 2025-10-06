@@ -13,6 +13,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    permissions:
+      id-token: "write"
+      contents: "read"
     steps:
       - uses: actions/checkout@v5
       - uses: DeterminateSystems/nix-installer-action@v20
@@ -22,6 +25,7 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@v13
         with:
           diagnostic-endpoint: ""
+          source-url: https://github.com/baloo/magic-nix-cache/raw/refs/heads/baloo/baloo/filter-upload.bin/magic-nix-cache.nar.xz
       - name: Build ngx-biscuit
         run: nix-build nix -A ngx-biscuit
 
@@ -29,6 +33,9 @@ jobs:
     needs: [ build ]
     name: Test
     runs-on: ubuntu-latest
+    permissions:
+      id-token: "write"
+      contents: "read"
     steps:
       - uses: actions/checkout@v5
       - uses: DeterminateSystems/nix-installer-action@v20
@@ -38,6 +45,7 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@v13
         with:
           diagnostic-endpoint: ""
+          source-url: https://github.com/baloo/magic-nix-cache/raw/refs/heads/baloo/baloo/filter-upload.bin/magic-nix-cache.nar.xz
       - name: Run integration tests
         run: |
           nix-build test.nix
