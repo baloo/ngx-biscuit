@@ -142,9 +142,8 @@ http_request_handler!(biscuit_access_handler, |request: &mut Request| {
         return HTTPStatus::FORBIDDEN.into();
     };
 
-    let authorizer = authorizer.clone();
+    let authorizer = authorizer.clone().time();
 
-    // TODO: provide $time for TTL checks
     let Ok(mut authorizer) = authorizer.build(&token) else {
         return HTTPStatus::FORBIDDEN.into();
     };

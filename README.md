@@ -8,7 +8,7 @@ load_module "./target/debug/libngx_biscuit.so";
 http {
     server {
         location / {
-	        auth_biscuit_public_key "ed25519/7fb375e762b525d926755ddf0dc68e413dce33c46f065d9b9423a827f2c3df0e";
+	        auth_biscuit_public_key "ed25519/0a843f91366c1b17bed9715ace06beed1ffb64b3ae755f9d20e94a5b29f5bf68";
 	        auth_biscuit_authorizer_file /path/to/authorizer;
         }
     }
@@ -22,5 +22,5 @@ http {
 $ nix-shell
 $ cargo build
 $ nginx -c example.cnf -e stderr -p $PWD
-$ curl -v --header 'Authorization: Bearer En0KEwoEMTIzNBgDIgkKBwgKEgMYgAgSJAgAEiAdbUPkSZ4KVak-CIGWs_shxjAync_e13qnaHD6Am3DSRpArECNcshzWMj22A5AQySpNIpJ3zlQNgfCU16pqg2V6N8Yw5CfFqUvo8qrG9qC3-M3PPdadYt-xrG2ETRWZxsnBCIiCiCZB1G2yrztVqbYO4giPTLaoSDGtdwypEUbP5W2DvT4Hg==' http://localhost:8080
+$ curl -v --header 'Authorization: Bearer En0KEwoEMTIzNBgDIgkKBwgKEgMYgAgSJAgAEiCnqxPdhwS5eVzgmLfNERSe39tXuO0PsPm9KPdQ37qzyBpA3EiRG9764PZRyeirjpX8Hjh4nvEh7YA9YDBY4L3bxeNRTEC-zVHDPOg_JoSQrXuQ4mgIRHRLljvNQdgLgEyQBSIiCiAKpGDK-8sPHTP3XNOwmj5yQswLSEhdfRuHcr5AOrXTQA==' http://localhost:8080
 ```

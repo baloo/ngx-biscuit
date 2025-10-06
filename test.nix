@@ -22,9 +22,15 @@ let
     ''
   );
 
-  runTest = { authorizer, datalog, makeBiscuitAttrs ? { } }:
+  runTest = { name, authorizer, datalog, makeBiscuitAttrs ? { }, expect ? "succeed" }:
+    let
+      token = biscuit {
+        inherit datalog;
+        attrs = makeBiscuitAttrs;
+      };
+    in
     testers.nixosTest ({
-      name = "ngx-biscuit-integration";
+      name = "ngx-biscuit-integration-${name}";
 
       nodes = {
         webserver = { ... }: {
@@ -53,13 +59,22 @@ let
             "curl --verbose --fail --resolve biscuit:80:127.0.0.1 http://biscuit/"
         )
 
-        webserver.succeed(
-            "curl --verbose --fail --header 'Authorization: Bearer ${biscuit { inherit datalog ; attrs = makeBiscuitAttrs;}}' --resolve biscuit:80:127.0.0.1 http://biscuit/"
+        webserver.${expect}(
+            "curl --verbose --fail --header 'Authorization: Bearer ${token}' --resolve biscuit:80:127.0.0.1 http://biscuit/"
         )
       '';
 
     });
 in
 {
-  simple = runTest { datalog = sample; inherit authorizer; };
+  simple = runTest { name = "simple"; datalog = sample; inherit authorizer; };
+  ttl = runTest {
+    name = "ttl";
+    expect = "fail";
+    datalog = sample;
+    inherit authorizer;
+    makeBiscuitAttrs = {
+      add-ttl = "2024-10-07T03:03:01Z";
+    };
+  };
 }

@@ -1,1 +1,1 @@
-user("1234");
+allow if user($u);
