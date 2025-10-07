@@ -88,10 +88,12 @@ static NGX_HTTP_AUTH_BISCUIT_MODULE_CTX: ngx_http_module_t = ngx_http_module_t {
 };
 
 // Generate the `ngx_modules` table with exported modules.
+#[cfg(feature = "export-modules")]
 ngx::ngx_modules!(ngx_http_auth_biscuit_module);
 
 #[used]
 #[allow(non_upper_case_globals)]
+#[cfg_attr(not(feature = "export-modules"), unsafe(no_mangle))]
 pub static mut ngx_http_auth_biscuit_module: ngx_module_t = ngx_module_t {
     ctx: std::ptr::addr_of!(NGX_HTTP_AUTH_BISCUIT_MODULE_CTX) as _,
     commands: unsafe { &NGX_HTTP_AUTH_BISCUIT_COMMANDS[0] as *const _ as *mut _ },
