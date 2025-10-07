@@ -23,7 +23,7 @@ jobs:
         with:
           diagnostic-endpoint: ""
       - name: Build ngx-biscuit
-        run: nix-build nix -A ngx-biscuit
+        run: nix-build nix -A nginx-biscuit
 
   test:
     needs: [ build ]

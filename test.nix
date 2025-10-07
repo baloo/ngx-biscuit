@@ -36,9 +36,8 @@ let
         webserver = { ... }: {
           services.nginx = {
             enable = true;
-            prependConfig = ''
-              load_module "${ngx-biscuit}/lib/libngx_biscuit.so";
-            '';
+            additionalModules = [ nginxModules.biscuit ];
+
             virtualHosts.biscuit = {
               locations."/" = {
                 extraConfig = ''

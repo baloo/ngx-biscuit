@@ -15,3 +15,7 @@ ngx = "0.5.0"
 
 biscuit-auth = "6.0.0"
 nom = "8.0.0"
+
+[features]
+default = ["export-modules"]
+export-modules = []
